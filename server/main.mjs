@@ -1,9 +1,12 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import {nanoid} from 'nanoid/async'
 
 dotenv.config()
 
 const app = express()
+
+app.use(express.json())
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', process.env.CLIENT_ORIGIN)
@@ -19,4 +22,12 @@ app.get('/', (req, res) => {
   res.status(200).send('Pong!')
 })
 
-app.listen(process.env.API_PORT)
+app.post('/users', async (req, res) => {
+  const userData = req.body
+
+  userData.id = await nanoid()
+
+  res.status(201).send(userData)
+})
+
+app.listen(process.env.PORT)
