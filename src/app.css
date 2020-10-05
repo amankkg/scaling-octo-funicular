@@ -39,3 +39,10 @@
     transform: rotate(360deg);
   }
 }
+
+.app-body {
+  width: 93%;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+}
