@@ -42,20 +42,11 @@ export const PersonForm = () => {
         Phone number
         <input
           key={key}
-          name="phoneNumber"
+          name="phone"
           type="tel"
           pattern="\+1\s[0-9]{3}\s[0-9]{7}"
           required
           placeholder="+1 555 5555555"
-        />
-      </label>
-      <label>
-        Full address
-        <input
-          key={key}
-          name="address"
-          required
-          placeholder="e.g. 123 Main St Anytown, USA"
         />
       </label>
       <label>
@@ -66,6 +57,15 @@ export const PersonForm = () => {
           pattern="[0-8]{3}-[0-9]{2}-[0-9]{4}"
           required
           placeholder="078-05-1120"
+        />
+      </label>
+      <label>
+        Full address
+        <input
+          key={key}
+          name="address"
+          required
+          placeholder="e.g. 123 Main St Anytown, USA"
         />
       </label>
       <div className="person-form-actions">
