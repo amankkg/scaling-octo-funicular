@@ -4,13 +4,17 @@
 }
 
 .person-form > label {
-  width: 300px;
+  width: 330px;
   display: flex;
   justify-content: space-between;
 }
 
 .person-form > label:not(:last-child) {
   margin-bottom: 10px;
+}
+
+.person-form > label > input {
+  width: 200px;
 }
 
 .person-form-actions {
