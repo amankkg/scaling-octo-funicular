@@ -3,6 +3,11 @@ import React, {useEffect, useState} from 'react'
 import logo from './logo.svg'
 import './app.css'
 
+const ping = () =>
+  fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL)
+    .then((resp) => resp.text())
+    .then((data) => alert(data))
+
 export const App = () => {
   const [count, setCount] = useState(0)
 
@@ -20,6 +25,8 @@ export const App = () => {
           Page has been open for <code>{count}</code> seconds
         </p>
       </header>
+      <br />
+      <button onClick={ping}>Ping?</button>
     </div>
   )
 }

@@ -16,3 +16,8 @@ code {
 a {
   color: #61dafb;
 }
+
+button {
+  padding: 0.75em 1.5em;
+  border-radius: 2em;
+}

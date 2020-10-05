@@ -6,6 +6,7 @@ module.exports = {
   devOptions: {
     open: 'none',
   },
+  exclude: ['src/server/*'],
   plugins: [
     '@snowpack/plugin-react-refresh',
     '@snowpack/plugin-dotenv',
