@@ -4,26 +4,21 @@
 }
 
 .person-form > label {
-  width: 330px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
-.person-form > label:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.person-form > label > input {
-  width: 200px;
+@media (min-width: 768px) {
+  .person-form > label {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
 }
 
 .person-form-actions {
-  width: 200px;
-  margin: 10px auto 0;
   display: flex;
   justify-content: space-between;
-}
-
-.person-form-actions > button[type='button'] {
-  transform: scale(0.93);
 }

@@ -39,7 +39,7 @@ export const PersonForm = () => {
         <input key={key} name="lastName" required placeholder="e.g. Doe" />
       </label>
       <label>
-        Phone number
+        Phone
         <input
           key={key}
           name="phone"
@@ -60,7 +60,7 @@ export const PersonForm = () => {
         />
       </label>
       <label>
-        Full address
+        Address
         <input
           key={key}
           name="address"
