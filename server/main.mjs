@@ -1,64 +1,56 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import {nanoid} from 'nanoid/async'
+import mongodb from 'mongodb'
 
 dotenv.config()
 
 const app = express()
+  .use(express.json())
+  .use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', process.env.CLIENT_ORIGIN)
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept',
+    )
 
-app.use(express.json())
+    next()
+  })
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', process.env.CLIENT_ORIGIN)
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept',
-  )
-
-  next()
+const client = new mongodb.MongoClient(process.env.DB_URI, {
+  useUnifiedTopology: true,
 })
 
-/** @type {Person[]} */
-const stubUsers = [
-  {
-    id: await nanoid(),
-    firstName: 'John',
-    lastName: 'Doe',
-    phone: '+1 123 3322114',
-    ssn: '123-12-1234',
-    address: 'Demo Address 123',
-  },
-  {
-    id: await nanoid(),
-    firstName: 'Jane',
-    lastName: 'Doe',
-    phone: '+1 123 1122334',
-    ssn: '123-12-4321',
-    address: 'Demo Address 456',
-  },
-  {
-    id: await nanoid(),
-    firstName: 'Jim',
-    lastName: 'Doe',
-    phone: '+1 123 4561231',
-    ssn: '123-12-1212',
-    address: 'Demo Address 321',
-  },
-]
+await client.connect()
 
-app.get('/users', (req, res) => {
-  res.status(200).send(stubUsers)
+app.get('/people', async (req, res) => {
+  let [status, data] = [200]
+
+  try {
+    data = await client
+      .db()
+      .collection('persons')
+      .find()
+      .map(({_id, ...p}) => ({...p, id: _id}))
+      .toArray()
+  } catch (error) {
+    console.error(error)[(status, data)] = [500, error]
+  }
+
+  res.status(status).send(data)
 })
 
-app.post('/users', async (req, res) => {
-  /** @type {PersonCreateDto} */
-  const userData = req.body
+app.post('/people', async (req, res) => {
+  let [status, data] = [201, req.body]
 
-  userData.id = await nanoid()
+  try {
+    const result = await client.db().collection('persons').insertOne(data)
 
-  stubUsers.push(userData)
+    data.id = result.insertedId
+  } catch (error) {
+    console.error(error)[(status, data)] = [500, error]
+  }
 
-  res.status(201).send(userData)
+  res.status(status).send(data)
 })
 
 app.listen(process.env.PORT)

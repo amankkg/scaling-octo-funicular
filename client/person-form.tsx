@@ -5,6 +5,8 @@ import './person-form.css'
 export const PersonForm = () => {
   const [key, setKey] = useState(0)
 
+  const onReset = () => setKey((key) => key + 1)
+
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -13,19 +15,17 @@ export const PersonForm = () => {
 
     formData.forEach((v, k) => (formObject[k] = v))
 
-    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/users', {
+    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/people', {
       method: 'post',
       body: JSON.stringify(formObject),
       headers: {'Content-Type': 'application/json'},
     })
       .then((resp) => {
-        setKey((key) => key + 1)
+        if (resp.ok) onReset()
         alert(resp.ok ? 'Success' : 'Failure')
       })
       .catch(() => alert('Error'))
   }
-
-  const onReset = () => setKey((key) => key + 1)
 
   return (
     <form onSubmit={onSubmit} className="person-form">

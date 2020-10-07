@@ -11,7 +11,7 @@ export const PersonList = () => {
   ])
 
   useEffect(() => {
-    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/users')
+    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/people')
       .then((resp) => resp.json())
       .then((persons) => setPersons([persons as Person[], 'OK']))
       .catch(() => setPersons([[], 'error']))
