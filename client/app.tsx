@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 
+import {LoginForm} from './login-form'
 import {PersonForm} from './person-form'
 import {PersonList} from './person-list'
 import logo from './logo.svg'
@@ -23,6 +24,7 @@ export const App = () => {
         </p>
       </header>
       <main className="app-body">
+        <LoginForm />
         <PersonForm />
         <PersonList />
       </main>
