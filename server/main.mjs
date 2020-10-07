@@ -22,6 +22,29 @@ const client = new mongodb.MongoClient(process.env.DB_URI, {
 
 await client.connect()
 
+app.post('/login', async (req, res) => {
+  let [status, data] = [201]
+  const query = req.body
+  const options = {projection: {_id: 1}}
+
+  try {
+    const result = await client
+      .db()
+      .collection('accounts')
+      .findOne(query, options)
+
+    if (result) data = result._id
+    else status = 400
+  } catch (error) {
+    console.error(error)
+
+    status = 500
+    data = error
+  }
+
+  res.status(status).send(data)
+})
+
 app.get('/people', async (req, res) => {
   let [status, data] = [200]
 
@@ -33,7 +56,10 @@ app.get('/people', async (req, res) => {
       .map(({_id, ...p}) => ({...p, id: _id}))
       .toArray()
   } catch (error) {
-    console.error(error)[(status, data)] = [500, error]
+    console.error(error)
+
+    status = 500
+    data = error
   }
 
   res.status(status).send(data)
@@ -47,7 +73,10 @@ app.post('/people', async (req, res) => {
 
     data.id = result.insertedId
   } catch (error) {
-    console.error(error)[(status, data)] = [500, error]
+    console.error(error)
+
+    status = 500
+    data = error
   }
 
   res.status(status).send(data)
