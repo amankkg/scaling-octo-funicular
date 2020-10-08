@@ -1,55 +1,85 @@
-import express from 'express'
+import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
+import express from 'express'
+import jwt from 'jsonwebtoken'
 import mongodb from 'mongodb'
 
 dotenv.config()
 
+const {DB_URI} = process.env
+const CLIENT_ORIGIN = 'http://localhost:8080'
+const ACCESS_TOKEN = 'f9bf78b9a18ce6d46a0cd2b0b86df9da'
+const TOKEN_TTL = 3600
+const PORT = 8081
+
 const app = express()
   .use(express.json())
   .use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', process.env.CLIENT_ORIGIN)
+    res.header('Access-Control-Allow-Origin', CLIENT_ORIGIN)
     res.header(
       'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     )
 
     next()
   })
 
-const client = new mongodb.MongoClient(process.env.DB_URI, {
-  useUnifiedTopology: true,
-})
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization']
+  const token = authHeader?.split(' ')[1]
+
+  if (token == null) return res.sendStatus(401)
+
+  jwt.verify(token, ACCESS_TOKEN, (error, identity) => {
+    if (error != null) return res.status(403).send(error)
+
+    req.userId = identity.id
+
+    next()
+  })
+}
+
+const generateAccessToken = (identity) => {
+  const accessToken = jwt.sign(identity, ACCESS_TOKEN, {expiresIn: TOKEN_TTL})
+  const expiresAt = Date.now() + TOKEN_TTL * 1e3
+
+  return [accessToken, new Date(expiresAt)]
+}
+
+const client = new mongodb.MongoClient(DB_URI, {useUnifiedTopology: true})
 
 await client.connect()
 
-app.post('/login', async (req, res) => {
-  let [status, data] = [201]
-  const query = req.body
-  const options = {projection: {_id: 1}}
+app.post('/signin', async (req, res) => {
+  const query = {login: req.body.login}
+  let user
 
   try {
-    const result = await client
-      .db()
-      .collection('accounts')
-      .findOne(query, options)
-
-    if (result) data = result._id
-    else status = 400
+    user = await client.db().collection('accounts').findOne(query)
   } catch (error) {
     console.error(error)
 
-    status = 500
-    data = error
+    return res.status(500).send(error)
   }
 
-  res.status(status).send(data)
+  if (!user) return res.sendStatus(400)
+
+  const match = await bcrypt.compare(req.body.password, user.passwordHash)
+
+  if (!match) return res.sendStatus(400)
+
+  const identity = {id: user._id}
+  const [accessToken, expireDate] = generateAccessToken(identity)
+  const payload = {accessToken, expireDate}
+
+  res.status(201).send(payload)
 })
 
-app.get('/people', async (req, res) => {
-  let [status, data] = [200]
+app.get('/people', authenticateToken, async (req, res) => {
+  let people
 
   try {
-    data = await client
+    people = await client
       .db()
       .collection('persons')
       .find()
@@ -58,28 +88,26 @@ app.get('/people', async (req, res) => {
   } catch (error) {
     console.error(error)
 
-    status = 500
-    data = error
+    return res.status(500).send(error)
   }
 
-  res.status(status).send(data)
+  res.status(200).send(people)
 })
 
 app.post('/people', async (req, res) => {
-  let [status, data] = [201, req.body]
+  const person = {...req.body}
 
   try {
-    const result = await client.db().collection('persons').insertOne(data)
+    const result = await client.db().collection('persons').insertOne(person)
 
-    data.id = result.insertedId
+    person.id = result.insertedId
   } catch (error) {
     console.error(error)
 
-    status = 500
-    data = error
+    return res.status(500).send(error)
   }
 
-  res.status(status).send(data)
+  res.status(201).send(person)
 })
 
-app.listen(process.env.PORT)
+app.listen(PORT)
