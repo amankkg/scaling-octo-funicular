@@ -1,34 +1,29 @@
-import React, {useEffect, useState} from 'react'
+import React from 'react'
+
+import {useApi} from './hooks'
 
 import './person-list.css'
 
-type Status = 'OK' | 'loading' | 'error'
-
 export const PersonList = () => {
-  const [[persons, status], setPersons] = useState([
-    [] as Person[],
-    'loading' as Status,
-  ])
-
-  useEffect(() => {
-    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/people')
-      .then((resp) => resp.json())
-      .then((persons) => setPersons([persons as Person[], 'OK']))
-      .catch(() => setPersons([[], 'error']))
-  }, [])
+  const state = useApi<Person[]>('/people')
 
   return (
     <>
       <h1>Person List</h1>
-      <ul className="person-list">
-        {persons.map((p) => (
-          <li key={p.id}>
-            {p.firstName} {p.lastName}
-          </li>
-        ))}
-      </ul>
-      {status === 'OK' && persons.length === 0 && <p>no persons yet</p>}
-      {status !== 'OK' && <p>{status}</p>}
+      {state.status === 'fulfilled' && (
+        <ul className="person-list">
+          {state.data.map((p) => (
+            <li key={p.id}>
+              {p.firstName} {p.lastName}
+            </li>
+          ))}
+        </ul>
+      )}
+      {state.status === 'fulfilled' && state.data.length === 0 && (
+        <p>no persons yet</p>
+      )}
+      {state.status === 'pending' && <p>{status}</p>}
+      {state.status === 'rejected' && <p>{state.error ?? state.errorCode}</p>}
     </>
   )
 }

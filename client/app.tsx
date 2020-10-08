@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react'
 
-import {LoginForm} from './login-form'
 import {PersonForm} from './person-form'
 import {PersonList} from './person-list'
+import {SignInForm} from './sign-in-form'
 import logo from './logo.svg'
 import './app.css'
 
@@ -24,7 +24,7 @@ export const App = () => {
         </p>
       </header>
       <main className="app-body">
-        <LoginForm />
+        <SignInForm />
         <PersonForm />
         <PersonList />
       </main>

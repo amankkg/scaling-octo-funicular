@@ -1,5 +1,7 @@
 import React, {useState} from 'react'
 
+import {api} from './services'
+
 import './person-form.css'
 
 export const PersonForm = () => {
@@ -15,16 +17,10 @@ export const PersonForm = () => {
 
     formData.forEach((v, k) => (formObject[k] = v))
 
-    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/people', {
-      method: 'post',
-      body: JSON.stringify(formObject),
-      headers: {'Content-Type': 'application/json'},
+    api<Person>('/people', 'post', formObject).then((result) => {
+      if (result.status === 'fulfilled') alert('created')
+      else alert(result.error ?? result.errorCode)
     })
-      .then((resp) => {
-        if (resp.ok) onReset()
-        alert(resp.ok ? 'Success' : 'Failure')
-      })
-      .catch(() => alert('Error'))
   }
 
   return (

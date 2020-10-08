@@ -1,6 +1,13 @@
 import React, {useState} from 'react'
 
-export const LoginForm = () => {
+import {api, tokenStorage} from './services'
+
+type TokenPayload = {
+  accessToken: string
+  expireDate: string
+}
+
+export const SignInForm = () => {
   const [showPassword, togglePassword] = useState(false)
 
   const onTogglePassword = () => togglePassword((x) => !x)
@@ -13,22 +20,15 @@ export const LoginForm = () => {
 
     formData.forEach((v, k) => (formObject[k] = v))
 
-    fetch(import.meta.env.SNOWPACK_PUBLIC_API_URL + '/login', {
-      method: 'post',
-      body: JSON.stringify(formObject),
-      headers: {'Content-Type': 'application/json'},
+    api<TokenPayload>('/signin', 'post', formObject).then((result) => {
+      if (result.status === 'fulfilled') tokenStorage.write(result.data)
+      else alert(result.error ?? result.errorCode)
     })
-      .then((resp) => {
-        if (resp.ok) return resp.json().then((id) => alert(id))
-
-        alert('Failure')
-      })
-      .catch(() => alert('Error'))
   }
 
   return (
     <form onSubmit={onSubmit} className="person-form">
-      <h1>Login Form</h1>
+      <h1>Sign In Form</h1>
       <label>
         Login
         <input name="login" required />
@@ -43,7 +43,7 @@ export const LoginForm = () => {
       </label>
       <div className="person-form-actions">
         <button type="button" onClick={onTogglePassword}>
-          {showPassword ? 'Hide' : 'Show'} Password
+          {showPassword ? 'Hide' : 'Show'} password
         </button>
         <button>Submit</button>
       </div>
