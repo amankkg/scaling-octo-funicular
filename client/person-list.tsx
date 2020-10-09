@@ -5,7 +5,7 @@ import {useApi} from './hooks'
 import './person-list.css'
 
 export const PersonList = () => {
-  const state = useApi<Person[]>('/admin/people')
+  const state = useApi<Person[]>('/people')
 
   return (
     <>

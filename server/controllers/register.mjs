@@ -1,8 +1,4 @@
-import express from 'express'
-
-export const router = express.Router()
-
-router.post('/people', async (req, res) => {
+export async function register(req, res) {
   const person = {...req.body}
 
   try {
@@ -16,4 +12,4 @@ router.post('/people', async (req, res) => {
   }
 
   res.status(201).send(person)
-})
+}

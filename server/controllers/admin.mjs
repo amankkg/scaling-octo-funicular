@@ -1,8 +1,4 @@
-import express from 'express'
-
-export const router = express.Router()
-
-router.get('/people', async (req, res) => {
+export async function getPeople(req, res) {
   let people
 
   try {
@@ -17,10 +13,9 @@ router.get('/people', async (req, res) => {
   }
 
   res.status(200).send(people)
-})
+}
 
-// TODO: finish person details
-router.get('/people/:personId', async (req, res) => {
+export async function getPerson(req, res) {
   const query = {_id: req.params.personId}
   let user
 
@@ -35,4 +30,4 @@ router.get('/people/:personId', async (req, res) => {
   if (!user) return res.sendStatus(404)
 
   res.status(200).send(user)
-})
+}

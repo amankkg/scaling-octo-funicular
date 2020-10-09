@@ -2,8 +2,10 @@ import dotenv from 'dotenv'
 import express from 'express'
 
 import {initAuth} from './auth.mjs'
+import {initCorsMiddleware} from './cors.mjs'
 import {initDbMiddleware} from './db.mjs'
-import * as routes from './routes/index.mjs'
+import {getPeople, getPerson} from './controllers/admin.mjs'
+import {register} from './controllers/register.mjs'
 
 dotenv.config()
 
@@ -15,28 +17,15 @@ const {
   SERVER_PORT = 8081,
 } = process.env
 
-const dbMiddleware = await initDbMiddleware(DB_URI)
-
-const {authMiddleware, authorizeUser} = initAuth(TOKEN_SECRET, TOKEN_TTL)
+const {authMiddleware, authorizeUser} = initAuth(
+  TOKEN_SECRET,
+  parseInt(TOKEN_TTL),
+)
 
 const app = express()
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', CLIENT_ORIGIN)
-
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-  )
-
-  next()
-})
-
-app.use(express.json())
-app.use(dbMiddleware)
-
-app.use('/admin', authMiddleware, routes.admin)
-app.use('/public', routes.public)
+  .use(express.json())
+  .use(initCorsMiddleware(CLIENT_ORIGIN))
+  .use(await initDbMiddleware(DB_URI))
 
 app.post('/signin', async (req, res) => {
   const query = {login: req.body.login}
@@ -64,6 +53,11 @@ app.post('/signin', async (req, res) => {
 
   res.status(201).send(tokenPayload)
 })
+
+app
+  .get('/people', authMiddleware, getPeople)
+  .get('/people/:personId', authMiddleware, getPerson)
+  .post('/register', register)
 
 app.listen(SERVER_PORT, () => {
   console.info(`API server started at http://localhost:${SERVER_PORT}`)
