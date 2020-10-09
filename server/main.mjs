@@ -1,61 +1,49 @@
-import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import express from 'express'
-import jwt from 'jsonwebtoken'
-import mongodb from 'mongodb'
+
+import {initAuth} from './auth.mjs'
+import {initDbMiddleware} from './db.mjs'
+import * as routes from './routes/index.mjs'
 
 dotenv.config()
 
-const {DB_URI} = process.env
-const CLIENT_ORIGIN = 'http://localhost:8080'
-const ACCESS_TOKEN = 'f9bf78b9a18ce6d46a0cd2b0b86df9da'
-const TOKEN_TTL = 3600
-const PORT = 8081
+const {
+  DB_URI,
+  CLIENT_ORIGIN = 'http://localhost:8080',
+  TOKEN_SECRET = 'f9bf78b9a18ce6d46a0cd2b0b86df9da',
+  TOKEN_TTL = 3600,
+  SERVER_PORT = 8081,
+} = process.env
+
+const dbMiddleware = await initDbMiddleware(DB_URI)
+
+const {authMiddleware, authorizeUser} = initAuth(TOKEN_SECRET, TOKEN_TTL)
 
 const app = express()
-  .use(express.json())
-  .use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', CLIENT_ORIGIN)
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-    )
 
-    next()
-  })
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', CLIENT_ORIGIN)
 
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization']
-  const token = authHeader?.split(' ')[1]
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+  )
 
-  if (token == null) return res.sendStatus(401)
+  next()
+})
 
-  jwt.verify(token, ACCESS_TOKEN, (error, identity) => {
-    if (error != null) return res.status(403).send(error)
+app.use(express.json())
+app.use(dbMiddleware)
 
-    req.userId = identity.id
-
-    next()
-  })
-}
-
-const generateAccessToken = (identity) => {
-  const accessToken = jwt.sign(identity, ACCESS_TOKEN, {expiresIn: TOKEN_TTL})
-  const expiresAt = Date.now() + TOKEN_TTL * 1e3
-
-  return [accessToken, new Date(expiresAt)]
-}
-
-const client = new mongodb.MongoClient(DB_URI, {useUnifiedTopology: true})
-
-await client.connect()
+app.use('/admin', authMiddleware, routes.admin)
+app.use('/public', routes.public)
 
 app.post('/signin', async (req, res) => {
   const query = {login: req.body.login}
   let user
 
   try {
-    user = await client.db().collection('accounts').findOne(query)
+    user = await req.db.accounts.findOne(query)
   } catch (error) {
     console.error(error)
 
@@ -64,50 +52,19 @@ app.post('/signin', async (req, res) => {
 
   if (!user) return res.sendStatus(400)
 
-  const match = await bcrypt.compare(req.body.password, user.passwordHash)
+  const identityPayload = {id: user._id}
 
-  if (!match) return res.sendStatus(400)
+  const tokenPayload = await authorizeUser(
+    req.body.password,
+    user.passwordHash,
+    identityPayload,
+  )
 
-  const identity = {id: user._id}
-  const [accessToken, expireDate] = generateAccessToken(identity)
-  const payload = {accessToken, expireDate}
+  if (!tokenPayload) return res.sendStatus(400)
 
-  res.status(201).send(payload)
+  res.status(201).send(tokenPayload)
 })
 
-app.get('/people', authenticateToken, async (req, res) => {
-  let people
-
-  try {
-    people = await client
-      .db()
-      .collection('persons')
-      .find()
-      .map(({_id, ...p}) => ({...p, id: _id}))
-      .toArray()
-  } catch (error) {
-    console.error(error)
-
-    return res.status(500).send(error)
-  }
-
-  res.status(200).send(people)
+app.listen(SERVER_PORT, () => {
+  console.info(`API server started at http://localhost:${SERVER_PORT}`)
 })
-
-app.post('/people', async (req, res) => {
-  const person = {...req.body}
-
-  try {
-    const result = await client.db().collection('persons').insertOne(person)
-
-    person.id = result.insertedId
-  } catch (error) {
-    console.error(error)
-
-    return res.status(500).send(error)
-  }
-
-  res.status(201).send(person)
-})
-
-app.listen(PORT)

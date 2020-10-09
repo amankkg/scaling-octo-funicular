@@ -17,7 +17,7 @@ export const PersonForm = () => {
 
     formData.forEach((v, k) => (formObject[k] = v))
 
-    api<Person>('/people', 'post', formObject).then((result) => {
+    api<Person>('/public/people', 'post', formObject).then((result) => {
       if (result.status === 'fulfilled') alert('created')
       else alert(result.error ?? result.errorCode)
     })
