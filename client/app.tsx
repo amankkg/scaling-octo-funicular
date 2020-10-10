@@ -1,33 +1,63 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 
-import {PersonForm} from './person-form'
-import {PersonList} from './person-list'
-import {SignInForm} from './sign-in-form'
+import {useHashRouter} from './hooks'
+import * as pages from './pages'
+import {tokenStorage} from './services'
 import logo from './logo.svg'
 import './app.css'
 
+type PageData = {
+  page: React.ReactNode
+  title: string
+  role?: Role
+}
+
+const startRole = tokenStorage.read() ? 'admin' : 'anonymous'
+
 export const App = () => {
-  const [count, setCount] = useState(0)
+  const [role, setRole] = useState<Role>(startRole)
+
+  const routes: Record<string, PageData> = useMemo(
+    () => ({
+      '#/': {page: <pages.Register />, title: 'Register'},
+      '#/people': {page: <pages.People />, title: 'People', role: 'admin'},
+      '#/sign-in': {
+        page: <pages.SignIn setRole={setRole} />,
+        title: 'Sign In',
+        role: 'anonymous',
+      },
+    }),
+    [setRole],
+  )
+
+  const {page, title} = useHashRouter(routes, routes['#/'])
 
   useEffect(() => {
-    const interval = setInterval(setCount, 1000, (count: number) => count + 1)
+    document.title = `${title} | ${role}`
+  }, [title])
 
-    return () => clearTimeout(interval)
-  }, [])
+  useEffect(() => {
+    if (role === 'admin') location.hash = '#/people'
+  }, [role])
 
   return (
     <div className="app">
       <header className="app-header">
-        <img src={logo} className="app-logo" alt="logo" />
-        <p>
-          Page has been open for <code>{count}</code> seconds
-        </p>
+        <a href="#/">
+          <img src={logo} className="app-logo" alt="logo" />
+        </a>
+        <div>
+          {Object.entries(routes)
+            .filter(([_, data]) => !data.role || data.role === role)
+            .map(([key, data]) => (
+              <a key={key} href={key}>
+                {data.title}
+              </a>
+            ))}
+          <h1>{title}</h1>
+        </div>
       </header>
-      <main className="app-body">
-        <SignInForm />
-        <PersonForm />
-        <PersonList />
-      </main>
+      <main className="app-body">{page}</main>
     </div>
   )
 }

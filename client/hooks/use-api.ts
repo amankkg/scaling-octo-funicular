@@ -11,7 +11,10 @@ export function useApi<T>(path: string, parameters?: Record<string, any>) {
   useEffect(() => {
     setState(pending)
 
-    api<T>(path, 'get', parameters).then(setState)
+    api<T>(path, 'get', parameters).then((resp) => {
+      if (resp.status === 'fulfilled') return setState(resp)
+      if ([401, 403].includes(resp.errorCode)) location.hash = '#/sign-in'
+    })
   }, [path, parameters])
 
   return result

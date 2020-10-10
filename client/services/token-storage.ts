@@ -8,15 +8,15 @@ type TokenPayload = {
 export const read = () => {
   const raw = localStorage.getItem(TOKEN_KEY)
 
-  if (!raw) return
+  if (raw) {
+    try {
+      const {accessToken, expireDate}: TokenPayload = JSON.parse(raw)
 
-  try {
-    const {accessToken, expireDate}: TokenPayload = JSON.parse(raw)
-
-    if (Date.parse(expireDate) > Date.now()) return accessToken
-  } catch {
-    return
+      if (Date.parse(expireDate) > Date.now()) return accessToken
+    } catch {}
   }
+
+  localStorage.clear()
 }
 
 export const write = (payload: TokenPayload) => {

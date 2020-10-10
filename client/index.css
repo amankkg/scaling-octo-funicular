@@ -12,3 +12,36 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form > label {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 1em;
+}
+
+@media (min-width: 768px) {
+  .form > label {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.person-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
