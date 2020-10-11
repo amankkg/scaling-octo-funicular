@@ -17,10 +17,18 @@ export const initAuth = (secret, tokenTtl) => {
     const authHeader = req.headers['authorization']
     const token = authHeader?.split(' ')[1]
 
-    if (token == null) return res.sendStatus(401)
+    if (token == null) {
+      res.sendStatus(401)
+
+      return
+    }
 
     jwt.verify(token, secret, (error, identity) => {
-      if (error != null) return res.status(403).send(error.message)
+      if (error != null) {
+        res.status(403).send(error.message)
+
+        return
+      }
 
       req.userId = identity.id
 

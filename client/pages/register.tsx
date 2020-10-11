@@ -13,8 +13,11 @@ export const Register = (props: PageProps) => {
     async function submit(data: Record<string, any>) {
       const result = await api<Person>('/register', 'post', data)
 
-      if (result.status === 'rejected')
-        return alert(result.error ?? result.errorCode)
+      if (result.status === 'rejected') {
+        alert(result.error ?? result.errorCode)
+
+        return
+      }
 
       alert('created')
       onReset()

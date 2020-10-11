@@ -15,9 +15,11 @@ export const SignIn = ({onSignIn}: PageProps) => {
 
       if (result.status === 'rejected') {
         alert(result.error ?? result.errorCode)
-      } else {
-        onSignIn(result.data)
+
+        return
       }
+
+      onSignIn(result.data)
     }
 
     event.preventDefault()

@@ -6,9 +6,9 @@ export async function register(req, res) {
 
     person.id = result.insertedId
   } catch (error) {
-    console.error(error)
+    res.status(500).send(error)
 
-    return res.status(500).send(error)
+    return
   }
 
   res.status(201).send(person)

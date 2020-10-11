@@ -34,24 +34,28 @@ app.post('/signin', async (req, res) => {
   try {
     user = await req.db.accounts.findOne(query)
   } catch (error) {
-    console.error(error)
+    res.status(500).send(error)
 
-    return res.status(500).send(error)
+    return
   }
 
-  if (!user) return res.sendStatus(400)
+  if (user) {
+    const identity = {id: user._id}
 
-  const identityPayload = {id: user._id}
+    const tokenPayload = await authorizeUser(
+      req.body.password,
+      user.passwordHash,
+      identity,
+    )
 
-  const tokenPayload = await authorizeUser(
-    req.body.password,
-    user.passwordHash,
-    identityPayload,
-  )
+    if (tokenPayload) {
+      res.status(201).send(tokenPayload)
 
-  if (!tokenPayload) return res.sendStatus(400)
+      return
+    }
+  }
 
-  res.status(201).send(tokenPayload)
+  res.sendStatus(400)
 })
 
 app
