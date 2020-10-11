@@ -7,33 +7,31 @@ import logo from './logo.svg'
 import './app.css'
 
 type PageData = {
-  page: React.ReactNode
+  Page: (props: PageProps) => JSX.Element
   title: string
   role?: Role
 }
 
-const startRole = tokenStorage.read() ? 'admin' : 'anonymous'
+const routes: Record<string, PageData> = {
+  '#/': {Page: pages.Register, title: 'Register'},
+  '#/people': {Page: pages.People, title: 'People', role: 'admin'},
+  '#/sign-in': {Page: pages.SignIn, title: 'Sign In', role: 'anonymous'},
+}
+
+const defaultPage = routes['#/']
+const defaultRole: Role = tokenStorage.read() ? 'admin' : 'anonymous'
 
 export const App = () => {
-  const [role, setRole] = useState<Role>(startRole)
+  const {Page, title} = useHashRouter(routes, defaultPage)
+  const [role, setRole] = useState(defaultRole)
 
-  const routes: Record<string, PageData> = useMemo(
-    () => ({
-      '#/': {page: <pages.Register />, title: 'Register'},
-      '#/people': {page: <pages.People />, title: 'People', role: 'admin'},
-      '#/sign-in': {
-        page: <pages.SignIn setRole={setRole} />,
-        title: 'Sign In',
-        role: 'anonymous',
-      },
-    }),
-    [setRole],
-  )
-
-  const {page, title} = useHashRouter(routes, routes['#/'])
+  const onSignIn = (payload: TokenPayload) => {
+    setRole('admin')
+    tokenStorage.write(payload)
+  }
 
   useEffect(() => {
-    document.title = `${title} | ${role}`
+    document.title = title
   }, [title])
 
   useEffect(() => {
@@ -48,7 +46,7 @@ export const App = () => {
         </a>
         <div>
           {Object.entries(routes)
-            .filter(([_, data]) => !data.role || data.role === role)
+            .filter(([_, data]) => data.role == null || data.role === role)
             .map(([key, data]) => (
               <a key={key} href={key}>
                 {data.title}
@@ -57,7 +55,9 @@ export const App = () => {
           <h1>{title}</h1>
         </div>
       </header>
-      <main className="app-body">{page}</main>
+      <main className="app-body">
+        <Page onSignIn={onSignIn} />
+      </main>
     </div>
   )
 }

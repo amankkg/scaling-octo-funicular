@@ -4,7 +4,7 @@ import {LabelField} from '../components'
 import {api} from '../services'
 import {getFormObject} from '../utils'
 
-export const Register = () => {
+export const Register = (props: PageProps) => {
   const [key, setKey] = useState(0)
 
   const onReset = () => setKey((key) => key + 1)

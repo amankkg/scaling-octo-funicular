@@ -7,6 +7,4 @@ declare type Person = {
   ssn: string
 }
 
-declare type PersonCreateDto = Omit<Person, 'id'>
-
 declare type Role = 'anonymous' | 'admin'

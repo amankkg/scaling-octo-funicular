@@ -2,8 +2,7 @@ import React from 'react'
 
 import {useApi} from '../hooks'
 
-// TODO: implement details view
-export const People = () => {
+export const People = (props: PageProps) => {
   const state = useApi<Person[]>('/people')
 
   return (
