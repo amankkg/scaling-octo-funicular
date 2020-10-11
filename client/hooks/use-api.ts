@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 
-import {api, ApiResult} from '../services'
+import {api, ApiResult} from 'client/services'
 
 const pending = {status: 'pending'} as const
 

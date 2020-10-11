@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
 
-import {LabelField} from '../components'
-import {api} from '../services'
-import {getFormObject} from '../utils'
+import {LabelField} from 'client/components'
+import {api} from 'client/services'
+import {getFormObject} from 'client/utils'
 
 export const Register = (props: PageProps) => {
   const [key, setKey] = useState(0)

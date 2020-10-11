@@ -18,4 +18,5 @@ module.exports = {
     '@snowpack/plugin-dotenv',
     '@snowpack/plugin-typescript',
   ],
+  alias: {client: './client'},
 }

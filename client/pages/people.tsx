@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-import {useApi} from '../hooks'
+import {useApi} from 'client/hooks'
 
 export const People = (props: PageProps) => {
   const state = useApi<Person[]>('/people')
