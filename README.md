@@ -40,7 +40,7 @@ Authentication is handled by JWT
 
 ## Development
 
-Run `npm ci` to install all dependencies.
+Run `npm ci` to install all dependencies
 
 Then, following scripts are available:
 
