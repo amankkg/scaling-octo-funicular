@@ -1,24 +1,42 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 import {useApi} from '../hooks'
 
 export const People = (props: PageProps) => {
   const state = useApi<Person[]>('/people')
+  const [activeIndex, setActive] = useState(0)
+
+  const onItemClick = (index: number) => (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    event.preventDefault()
+    setActive(index)
+  }
 
   return (
     <>
       {state.status === 'fulfilled' && (
         <ul className="person-list">
-          {state.data.map((p) => (
+          {state.data.map((p, i) => (
             <li key={p.id}>
               <h1>
-                {p.firstName} {p.lastName}
+                {i === activeIndex ? (
+                  `${p.firstName} ${p.lastName}`
+                ) : (
+                  <a href="#" onClick={onItemClick(i)}>
+                    {p.firstName} {p.lastName}
+                  </a>
+                )}
               </h1>
-              <p>
-                <b>SSN:</b> {p.ssn}
-              </p>
-              <p>☎️ {p.phone}</p>
-              <p>🏠 {p.address}</p>
+              {i === activeIndex && (
+                <>
+                  <p>
+                    <b>SSN:</b> {p.ssn}
+                  </p>
+                  <p>☎️ {p.phone}</p>
+                  <p>🏠 {p.address}</p>
+                </>
+              )}
             </li>
           ))}
         </ul>

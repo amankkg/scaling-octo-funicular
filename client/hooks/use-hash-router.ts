@@ -2,12 +2,7 @@ import {useEffect, useMemo, useState} from 'react'
 
 export function useHashRouter<T>(routes: Record<string, T>, defaultData: T) {
   const getPage = useMemo(
-    () => () => {
-      const x = routes[window.location.hash] ?? defaultData
-      console.log(x)
-
-      return x
-    },
+    () => () => routes[window.location.hash] ?? defaultData,
     [routes, defaultData],
   )
 
