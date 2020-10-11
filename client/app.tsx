@@ -31,7 +31,7 @@ export const App = () => {
   }
 
   useEffect(() => {
-    document.title = title
+    document.title = `${title} | Scaling Octo Funicular`
   }, [title])
 
   useEffect(() => {

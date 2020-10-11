@@ -6,5 +6,3 @@ declare type Person = {
   address: string
   ssn: string
 }
-
-declare type Role = 'anonymous' | 'admin'

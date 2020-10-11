@@ -1,29 +1,53 @@
-# New Project
+# Scaling Octo Funicular
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+Client app is built using React and TypeScript. Bundled using [Snowpack](https://snowpack.dev)
 
-## Available Scripts
+Server app is built using Node.js (ECMAScript modules), Express, and MongoDB
 
-### npm start
+Authentication is handled by JWT
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+## Prerequisites
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+1. Node.js, npm
+1. Accessible MongoDB database with following collections:
+   - `accounts` - user accounts, admin must be populated with password hashed by `bcrypt`
+   - `people` - to be filled with person form submissions
+1. `.env` file with mandatory (i.e. with no fallbacks in source code) entries. See `./.env.example` for details
 
-### npm test
+## Project structure
 
-Launches the test runner in the interactive watch mode.
-See the section about running tests for more information.
+- `client/*` - client app sources
+  - `components/*` - reusable UI components
+  - `hooks/*` - hook facades over certain React-specific aspects/logic
+  - `pages/*` - page components with common props as `PageProps` type
+  - `services/*` - facades over certain Web APIs
+  - `app` - client app shell, nav links, and routing point
+  - `utils` - this should not exists IRL
+- `public/*` - client app static files
+- `server/*` - server app sources
+  - `controllers/*` - endpoint logic (actions grouped by controllers)
+  - `auth` - authentication middleware and password checker
+  - `cors` - CORS middleware
+  - `db` - database middleware
+  - `main` - middleware and routing settings, app initialization
+- `types/*` - type definitions
+  - `./client` - specific to client app
+  - `./domain` - database entities
+  - `./env` - environment variables
+  - `./static` - static assets import
+- `.env.example` - list of supported environment variables
+- `snowpack.config.js` - client app bundler settings
 
-### npm run build
+## Development
 
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
+Run `npm ci` to install all dependencies.
 
-**For the best production performance:** Add a build bundler plugin like "@snowpack/plugin-webpack" or "@snowpack/plugin-parcel" to your `snowpack.config.json` config file.
+Then, following scripts are available:
 
-### Q: What about Eject?
+- `npm run client` starts client app with hot reload
+- `npm run server` starts server app with file watcher
+- `npm start` starts both scripts from above simultanousely
 
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+## Deployment
+
+Not implemented
