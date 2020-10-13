@@ -12,7 +12,7 @@ Authentication is handled by JWT
 1. Accessible MongoDB database with following collections:
    - `accounts` - user accounts, admin must be populated with password hashed by `bcrypt`
    - `people` - to be filled with person form submissions
-1. `.env` file with mandatory (i.e. with no fallbacks in source code) entries. See `./.env.example` for details
+1. `.env` file with all required entries. See `./.env.example` for details
 
 ## Project structure
 
@@ -21,20 +21,17 @@ Authentication is handled by JWT
   - `hooks/*` - hook facades over certain React-specific aspects/logic
   - `pages/*` - page components with common props as `PageProps` type
   - `services/*` - facades over certain Web APIs
-  - `app` - client app shell, nav links, and routing point
-  - `utils` - this should not exists IRL
+  - `app.tsx` - client app shell, nav links, and routing point
+  - `utils.ts` - this should not exists IRL
 - `public/*` - client app static files
 - `server/*` - server app sources
-  - `controllers/*` - endpoint logic (actions grouped by controllers)
-  - `auth` - authentication middleware and password checker
-  - `cors` - CORS middleware
-  - `db` - database middleware
-  - `main` - middleware and routing settings, app initialization
-- `types/*` - type definitions
-  - `./client` - specific to client app
-  - `./domain` - database entities
-  - `./env` - environment variables
-  - `./static` - static assets import
+  - `controllers/*.mjs` - endpoint logic (actions grouped by controllers)
+  - `auth.mjs` - authentication middleware and password checker
+  - `cors.mjs` - CORS middleware
+  - `crypto.mjs` - SSN encryption tools
+  - `db.mjs` - database middleware
+  - `main.mjs` - middleware and routing settings, app initialization
+- `types/*.d.ts` - global type definitions
 - `.env.example` - list of supported environment variables
 - `snowpack.config.js` - client app bundler settings
 
