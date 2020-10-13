@@ -1,6 +1,11 @@
 /* Use this file to declare any custom file extensions for importing */
 /* Use this folder to also add/extend a package d.ts file, if needed. */
 
+declare module '*.module.css' {
+  const ref: Record<string, string>
+  export default ref
+}
+
 declare module '*.css'
 declare module '*.svg' {
   const ref: string

@@ -2,6 +2,8 @@ import React, {useState} from 'react'
 
 import {useApi} from 'client/hooks'
 
+import styles from './people.module.css'
+
 export const People = (props: PageProps) => {
   const state = useApi<Person[]>('/people')
   const [activeIndex, setActive] = useState(0)
@@ -16,7 +18,7 @@ export const People = (props: PageProps) => {
   return (
     <>
       {state.status === 'fulfilled' && (
-        <ul className="person-list">
+        <ul className={styles.list}>
           {state.data.map((p, i) => (
             <li key={p.id}>
               <h1>

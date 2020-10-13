@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 
 import {useHashRouter} from './hooks'
 import * as pages from './pages'

@@ -1,6 +1,6 @@
 import {read as readToken} from './token-storage'
 
-const {SNOWPACK_PUBLIC_API: API = 'http://localhost:8081'} = import.meta.env
+const API = import.meta.env.SNOWPACK_PUBLIC_API
 
 type FetchOptions = RequestInit & {headers: Headers}
 type HttpMethod = 'get' | 'post'

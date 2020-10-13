@@ -1,10 +1,5 @@
 const TOKEN_KEY = 'token'
 
-type TokenPayload = {
-  accessToken: string
-  expireDate: string
-}
-
 export const read = () => {
   const raw = localStorage.getItem(TOKEN_KEY)
 
