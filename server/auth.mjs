@@ -1,40 +1,39 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-export const initAuth = (secret, tokenTtl) => {
-  async function authorizeUser(rawPassword, passwordHash, identity) {
-    const match = await bcrypt.compare(rawPassword, passwordHash)
+const secret = process.env.TOKEN_SECRET
+const ttl = parseInt(process.env.TOKEN_TTL)
 
-    if (!match) return
+export async function authorize(rawPassword, passwordHash, identity) {
+  const match = await bcrypt.compare(rawPassword, passwordHash)
 
-    const accessToken = jwt.sign(identity, secret, {expiresIn: tokenTtl})
-    const expireDate = new Date(Date.now() + tokenTtl * 1e3)
+  if (!match) return
 
-    return {accessToken, expireDate}
+  const accessToken = jwt.sign(identity, secret, {expiresIn: ttl})
+  const expireDate = new Date(Date.now() + ttl * 1e3)
+
+  return {accessToken, expireDate}
+}
+
+export const middleware = (req, res, next) => {
+  const authHeader = req.headers['authorization']
+  const token = authHeader?.split(' ')[1]
+
+  if (token == null) {
+    res.sendStatus(401)
+
+    return
   }
 
-  const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers['authorization']
-    const token = authHeader?.split(' ')[1]
-
-    if (token == null) {
-      res.sendStatus(401)
+  jwt.verify(token, secret, (error, identity) => {
+    if (error != null) {
+      res.status(403).send(error.message)
 
       return
     }
 
-    jwt.verify(token, secret, (error, identity) => {
-      if (error != null) {
-        res.status(403).send(error.message)
+    req.userId = identity.id
 
-        return
-      }
-
-      req.userId = identity.id
-
-      next()
-    })
-  }
-
-  return {authMiddleware, authorizeUser}
+    next()
+  })
 }
